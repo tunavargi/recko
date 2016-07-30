@@ -1,4 +1,3 @@
-import json
 import uuid
 from datetime import datetime
 from random import randint
@@ -47,12 +46,11 @@ def like():
     if not user:
         return Response(status=403)
 
-    token = uuid.uuid4().hex()
-    liked = user['liked'][:100]
+    liked = user['articles'][:100]
     if not url in liked:
         liked.append(url)
     db.users.update({"token":token},
-                    {"$set": {"liked": liked}})
+                    {"$set": {"articles": liked}})
     return "liked"
 
 
@@ -68,14 +66,14 @@ def teach():
                                      "content": content})
 
         redisconn.rpush("queue", str(item.inserted_id))
-        return json.dumps({"url": item.inserted_id })
-    return json.dumps({"message": "Nothing inserted"})
+        return dumps({"url": item.inserted_id })
+    return dumps({"message": "Nothing inserted"})
 
 def get_random():
-    randint(0, db.articles.count())
-    article = db.articles.find().limit(1).skip(randint)
+    random = randint(0, db.articles.count())
+    article = db.articles.find().limit(1).skip(random)
     if article:
-        return article
+        return article[0]
 
 
 @app.route("/next", methods=["GET"])
@@ -86,9 +84,9 @@ def _next():
     user = db.users.find_one({"token": token})
     if not user:
         return Response(status=403)
-    if not user['liked']:
+    if not user['articles']:
         article = get_random()
-        return Response(json.dumps({'article': article}))
+        return Response(dumps({'article': article}))
 
 
     query = {"$or":[{"match1": {"$nin": user["visited"]}},
@@ -98,8 +96,8 @@ def _next():
     similar = list(similar)
     if not similar:
         article = get_random()
-        return Response(json.dumps({'article': article}))
-    return Response(json.dumps({"article": similar[0]}))
+        return Response(dumps({'article': article}))
+    return Response(dumps({"article": similar[0]}))
 
 
 @app.route('/neighbors/<string:id>', methods=["GET"])
@@ -108,7 +106,7 @@ def neighbors(id):
     similar = db.article_match.find(query).sort([("dst", 1)])
     match_ids = [i["match1"] if i["match1"] == ObjectId(id) else i["match2"] for i in similar]
     articles = db.articles.find({"_id": {"$in": match_ids}})
-    return json.dumps({"articles": articles})
+    return dumps({"articles": articles})
 
 if __name__ == "__main__":
     app.run(debug=True)
