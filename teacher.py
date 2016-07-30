@@ -1,4 +1,5 @@
-from datetime import datetime, time
+from datetime import datetime
+import time
 
 import redis
 import requests
@@ -33,12 +34,13 @@ def teach(url):
     _url, keywords, content = go_embedly(url)
     print _url
     if not db.articles.find_one({"url": _url}):
-        item = db.articles.insert_one({"url": _url,
-                                       "create_date": datetime.now(),
-                                       "keywords": keywords,
-                                       "content": content})
-        redisconn.rpush("queue", str(item.inserted_id))
-        print item.inserted_id
+        if content:
+            item = db.articles.insert_one({"url": _url,
+                                           "create_date": datetime.now(),
+                                           "keywords": keywords,
+                                           "content": content})
+            redisconn.rpush("queue", str(item.inserted_id))
+            print item.inserted_id
 
 def teach_reddit():
     for feed in feeds:
@@ -51,5 +53,5 @@ def teach_reddit():
 
 if __name__ == "__main__":
     while True:
-        time.sleep(60*60*3)
         teach_reddit()
+        time.sleep(60*60*3)

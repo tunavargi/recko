@@ -8,7 +8,7 @@ import requests
 from bson import ObjectId
 from bson import json_util
 
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 from flask import request
 from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME
 from pymongo import MongoClient
@@ -62,10 +62,11 @@ def teach():
     url = data.get("url")
     _url, keywords, content = go_embedly(url)
     if not db.articles.find_one({"url": _url}):
-        item = db.articles.insert_one({"url": _url,
-                                     "create_date": datetime.now(),
-                                     "keywords": keywords,
-                                     "content": content})
+        if content:
+            item = db.articles.insert_one({"url": _url,
+                                         "create_date": datetime.now(),
+                                         "keywords": keywords,
+                                         "content": content})
 
         redisconn.rpush("queue", str(item.inserted_id))
         return json_encode({"url": item.inserted_id })
@@ -93,7 +94,7 @@ def _next():
         visited = user.get('visited', [])
         visited.append(article_id)
         db.users.update({"token": token}, {"$set": {"visited": visited}})
-        return Response(json_encode({'article': article}))
+        return Response(json_encode({'article': article}),mimetype="application/json")
 
     query = {"$and":[{"match1": {"$nin": user["visited"]}},
                      {"match2": {"$nin": user["visited"]}}]}
@@ -105,7 +106,7 @@ def _next():
         article = get_random()
         user['visited'].append(article['_id'])
         db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
-        return Response(json.dumps({'article': article}))
+        return Response(json_encode({'article': article}),mimetype="application/json")
 
     match_ids = [i["match1"] if i["match1"] in user["visited"] else i["match2"] for i in similar]
     articles = db.articles.find({"_id": {"$in": match_ids}})
@@ -121,6 +122,11 @@ def neighbors(id):
     match_ids = [i["match1"] if i["match1"] == ObjectId(id) else i["match2"] for i in similar]
     articles = db.articles.find({"_id": {"$in": match_ids}})
     return Response(json_encode({"articles": articles}))
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

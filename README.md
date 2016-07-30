@@ -32,7 +32,7 @@ Calculates distance between articles and recommend new articles to read
  `returns a response according to your likes`
 
 - Like an article
- `POST /like?token=<access_token> {id: <article_id>}`
+ `POST /like?token=<access_token> {url: <article_id>}`
 
 
 ## Needs

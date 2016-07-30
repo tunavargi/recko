@@ -1,0 +1,41 @@
+<button class="next">next</button>
+<button class="like">like</button>
+<div id="embed">
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script>
+    var token = $.cookie("token");
+    var _id;
+    if (!token){
+        $.post("/authenticate", {}, function(response){
+            $.cookie("token", response)});
+            token = response;
+    }
+    function getter(){
+        $.get("next?token=" + token, function(response){
+            _id = response.article.id;
+            $("#embed").html(response.article.content)
+        })
+    }
+    getter();
+    $('.like').on("click", function(){
+     $.ajax({
+                type: 'post',
+                url: '/like?token=' + token,
+                data: JSON.stringify({url: _id}),
+                contentType: "application/json; charset=utf-8",
+                traditional: true,
+                success: function (data) {
+                    getter()
+                }
+            });
+
+    });
+    $(".next").on("click", function(){
+        getter()
+    });
+
+
+</script>
