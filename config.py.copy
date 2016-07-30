@@ -1,0 +1,3 @@
+import os
+EMBEDLY_API_KEY="xxx"
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
