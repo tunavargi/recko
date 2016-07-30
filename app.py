@@ -51,7 +51,8 @@ def like():
         liked.append(url)
     db.users.update({"token":token},
                     {"$set": {"articles": liked}})
-    return "liked"
+
+    return dumps({"token" : token})
 
 
 @app.route('/teach', methods=['GET'])
@@ -96,6 +97,8 @@ def _next():
     similar = list(similar)
     if not similar:
         article = get_random()
+        visited = user.visited
+        db.users.update({"token": token}, {"$set": {"visited": visited}})
         return Response(dumps({'article': article}))
     return Response(dumps({"article": similar[0]}))
 

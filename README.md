@@ -14,7 +14,7 @@ Calculates distance between articles and recommend new articles to read
 - run app.py for flask web server 
 - run calculate.py for distance calculating worker
 
-## USAGE
+## Usage
  
  
 - For teaching urls
@@ -22,6 +22,10 @@ Calculates distance between articles and recommend new articles to read
  
 - For getting one of the closest neighbors of given url
  `GET /neighbor?url=<url-id>`
+
+- For authenticating a new client
+ `POST /authenticate {}`
+ `returns
 
 ## Needs
 
