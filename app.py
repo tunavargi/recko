@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime
 from random import randint
@@ -5,13 +6,13 @@ from random import randint
 import redis
 import requests
 from bson import ObjectId
-from bson.json_util import dumps
+from bson import json_util
 
 from flask import Flask, Response
 from flask import request
 from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME
 from pymongo import MongoClient
-
+from utils import json_encode
 
 app = Flask(__name__)
 client = MongoClient()
@@ -52,7 +53,7 @@ def like():
     db.users.update({"token":token},
                     {"$set": {"articles": liked}})
 
-    return dumps({"token" : token})
+    return Response(json_encode({"message" : "liked"}))
 
 
 @app.route('/teach', methods=['GET'])
@@ -67,8 +68,8 @@ def teach():
                                      "content": content})
 
         redisconn.rpush("queue", str(item.inserted_id))
-        return dumps({"url": item.inserted_id })
-    return dumps({"message": "Nothing inserted"})
+        return json_encode({"url": item.inserted_id })
+    return json_encode({"message": "Nothing inserted"})
 
 def get_random():
     random = randint(0, db.articles.count())
@@ -85,22 +86,32 @@ def _next():
     user = db.users.find_one({"token": token})
     if not user:
         return Response(status=403)
+
     if not user['articles']:
         article = get_random()
-        return Response(dumps({'article': article}))
+        article_id = article['_id']
+        visited = user.get('visited', [])
+        visited.append(article_id)
+        db.users.update({"token": token}, {"$set": {"visited": visited}})
+        return Response(json_encode({'article': article}))
 
-
-    query = {"$or":[{"match1": {"$nin": user["visited"]}},
-                    {"match2": {"$nin": user["visited"]}}]}
+    query = {"$and":[{"match1": {"$nin": user["visited"]}},
+                     {"match2": {"$nin": user["visited"]}}]}
 
     similar = db.article_match.find(query).sort([("dst", 1)])
     similar = list(similar)
+
     if not similar:
         article = get_random()
-        visited = user.visited
-        db.users.update({"token": token}, {"$set": {"visited": visited}})
-        return Response(dumps({'article': article}))
-    return Response(dumps({"article": similar[0]}))
+        user['visited'].append(article['_id'])
+        db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
+        return Response(json.dumps({'article': article}))
+
+    match_ids = [i["match1"] if i["match1"] in user["visited"] else i["match2"] for i in similar]
+    articles = db.articles.find({"_id": {"$in": match_ids}})
+    user['visited'].append(articles[0]['_id'])
+    db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
+    return Response(json_encode({"article": articles[0]}), mimetype="application/json")
 
 
 @app.route('/neighbors/<string:id>', methods=["GET"])
@@ -109,7 +120,7 @@ def neighbors(id):
     similar = db.article_match.find(query).sort([("dst", 1)])
     match_ids = [i["match1"] if i["match1"] == ObjectId(id) else i["match2"] for i in similar]
     articles = db.articles.find({"_id": {"$in": match_ids}})
-    return dumps({"articles": articles})
+    return Response(json_encode({"articles": articles}))
 
 if __name__ == "__main__":
     app.run(debug=True)
