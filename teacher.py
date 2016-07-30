@@ -31,17 +31,16 @@ def go_embedly(url):
     response = requests.get(req_url, params={"url": url,
                                          "key": EMBEDLY_API_KEY})
     result = response.json()
-    return result.get("url"),result.get("keywords"), result.get("content")
+    return result.get("keywords"), result.get("content")
 
 def teach(url):
-    _url, keywords, content = go_embedly(url)
-    print _url
-    if not db.articles.find_one({"url": _url}):
+    if not db.articles.find_one({"url": url}):
+        keywords, content = go_embedly(url)
         if content:
-            item = db.articles.insert_one({"url": _url,
-                                           "create_date": datetime.now(),
-                                           "keywords": keywords,
-                                           "content": content})
+            item = db.articles.insert_one({"url": url,
+                                               "create_date": datetime.now(),
+                                               "keywords": keywords,
+                                               "content": content})
             redisconn.rpush("queue", str(item.inserted_id))
             print item.inserted_id
 

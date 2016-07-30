@@ -1,5 +1,8 @@
 <button class="next">next</button>
 <button class="like">like</button>
+<div id="url"></div>
+</br>
+
 <div id="embed">
 
 </div>
@@ -16,7 +19,8 @@
     function getter(){
         $.get("next?token=" + token, function(response){
             _id = response.article._id;
-            $("#embed").html(response.article.content)
+            $("#embed").html(response.article.content);
+            $("#url").html('<a href="' + response.article.url +'">' + response.article.url+  '</a>')
         })
     }
     getter()
