@@ -23,9 +23,18 @@ Calculates distance between articles and recommend new articles to read
 - For getting one of the closest neighbors of given url
  `GET /neighbor?url=<url-id>`
 
-- For authenticating a new client
+- Authenticate a new client
  `POST /authenticate {}`
- `returns
+ `returns {token: <access token>}`
+
+- Get a suggestion
+ `GET /next?token=<access_token>`
+ `returns a response according to your likes`
+
+- Like an article
+ `GET /next?token=<access_token>`
+ `returns a response according to your likes`
+
 
 ## Needs
 
