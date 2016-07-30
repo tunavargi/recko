@@ -40,7 +40,7 @@ def authenticate():
 @app.route("/like", methods=["POST"])
 def like():
     token = request.args.get("token")
-    url = request.json.get("url")
+    url_id = request.json.get("url")
     if not token:
         return Response(status=403)
     user = db.users.find_one({"token": token})
@@ -48,8 +48,10 @@ def like():
         return Response(status=403)
 
     liked = user['articles'][:100]
-    if not url in liked:
-        liked.append(url)
+    article = db.articles.find_one({"_id": ObjectId(url_id)})
+
+    if not article["_id"] in liked:
+        liked.append(article["_id"])
     db.users.update({"token":token},
                     {"$set": {"articles": liked}})
 

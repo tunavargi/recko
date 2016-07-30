@@ -21,6 +21,9 @@ feeds = [
     "http://www.reddit.com/r/ruby/.json",
     "http://www.reddit.com/r/history/.json",
     "http://www.reddit.com/r/science/.json",
+    "http://www.reddit.com/r/InternetIsBeautiful/.json",
+    "http://www.reddit.com/r/nutrition/.json",
+    "http://www.reddit.com/r/philosophy/.json",
 ]
 
 def go_embedly(url):

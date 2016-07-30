@@ -15,21 +15,22 @@
     }
     function getter(){
         $.get("next?token=" + token, function(response){
-            _id = response.article.id;
+            _id = response.article._id;
             $("#embed").html(response.article.content)
         })
     }
-    getter();
+    getter()
     $('.like').on("click", function(){
-     $.ajax({
-                type: 'post',
-                url: '/like?token=' + token,
-                data: JSON.stringify({url: _id}),
-                contentType: "application/json; charset=utf-8",
-                traditional: true,
-                success: function (data) {
-                    getter()
-                }
+     var data = JSON.stringify({url: _id});
+     console.log(data);
+     $.ajax({type: 'POST',
+             url: '/like?token=' + token,
+             data: data,
+             contentType: "application/json",
+             dataType: "application/json",
+             complete: function (response) {
+                getter()
+            }
             });
 
     });
