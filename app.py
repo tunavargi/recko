@@ -24,18 +24,20 @@ def get_keywords(url):
     response = requests.get(req_url, params={"url": url,
                                          "key": EMBEDLY_API_KEY})
     result = response.json()
-    return result.get("keywords")
+    return result.get("keywords"), result.get("content")
 
 
 @app.route('/teach', methods=['GET'])
 def teach():
     data = request.args
     url = data.get("url")
-    keywords = get_keywords(url)
+    keywords, content = get_keywords(url)
     if not db.articles.find_one({"url": url}):
         item = db.articles.insert_one({"url": url,
                                      "create_date": datetime.now(),
-                                     "keywords": keywords})
+                                     "keywords": keywords,
+                                     "content": content})
+
         redisconn.rpush("queue", str(item.inserted_id))
         return json.dumps({"url": item.inserted_id })
     return json.dumps({"message": "Nothing inserted"})
