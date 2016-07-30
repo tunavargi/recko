@@ -37,8 +37,8 @@ def teach():
                                      "create_date": datetime.now(),
                                      "keywords": keywords})
         redisconn.rpush("queue", str(item.inserted_id))
-    return 'thanks'
-
+        return json.dumps({"url": item.inserted_id })
+    return json.dumps({"message": "Nothing inserted"})
 
 @app.route('/neighbors/<string:id>', methods=["GET"])
 def neighbors(id):
