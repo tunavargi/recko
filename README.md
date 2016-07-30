@@ -29,3 +29,4 @@ Calculates distance between articles and recommend new articles to read
 - scipy
 - mongodb
 - redis
+- embedly account for extracting kw's
