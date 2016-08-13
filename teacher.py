@@ -1,6 +1,6 @@
 from datetime import datetime
 import time
-
+import feedparser
 import redis
 import requests
 from config import DB_NAME, REDIS_HOST, EMBEDLY_API_KEY
@@ -10,10 +10,7 @@ client = MongoClient()
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 db = client[DB_NAME]
 
-
-
-
-feeds = [
+reddit_feeds = [
     "http://www.reddit.com/r/python/.json",
     "http://www.reddit.com/r/database/.json",
     "http://www.reddit.com/r/devops/.json",
@@ -24,7 +21,25 @@ feeds = [
     "http://www.reddit.com/r/InternetIsBeautiful/.json",
     "http://www.reddit.com/r/nutrition/.json",
     "http://www.reddit.com/r/philosophy/.json",
+    "http://www.reddit.com/r/politics/.json",
+    "http://www.reddit.com/r/worldnews/.json",
+    "http://www.reddit.com/r/news/.json",
+    "http://www.reddit.com/r/technology/.json",
+    "http://www.reddit.com/r/nba/.json",
+    "http://www.reddit.com/r/soccer/.json",
+    "http://www.reddit.com/r/baseball/.json",
+    "http://www.reddit.com/r/formula1/.json",
+    "http://www.reddit.com/r/nfl/.json",
+    "http://www.reddit.com/r/lgbt/.json",
 ]
+
+wired_feeds = ["http://www.wired.com/category/gear/feed/",
+               "http://www.wired.com/category/reviews/feed/",
+               "http://www.wired.com/category/science/feed/",
+               "http://www.wired.com/category/science-blogs/feed/",
+               "http://www.wired.com/category/security/feed/",
+               "http://www.wired.com/category/transportation/feed/",
+               ]
 
 def go_embedly(url):
     req_url = "https://api.embedly.com/1/extract"
@@ -45,7 +60,7 @@ def teach(url):
             print item.inserted_id
 
 def teach_reddit():
-    for feed in feeds:
+    for feed in reddit_feeds:
         d = requests.get(feed,headers = {'User-agent': 'Reko-parser'})
         d = d.json()
         for child in d['data']["children"]:
@@ -53,7 +68,13 @@ def teach_reddit():
             if "reddit" not in url:
                 teach(child["data"]["url"])
 
+def teach_wired():
+    for feed in wired_feeds:
+        d = feedparser.parse(r'%s' % feed)
+        for child in d["entries"]:
+            teach(child["links"][0]["href"])
+
 if __name__ == "__main__":
     while True:
-        teach_reddit()
+        teach_wired()
         time.sleep(60*60*3)

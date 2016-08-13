@@ -74,12 +74,13 @@ def teach():
         return json_encode({"url": item.inserted_id })
     return json_encode({"message": "Nothing inserted"})
 
-def get_random():
+def get_random(user):
     random = randint(0, db.articles.count())
-    article = db.articles.find().limit(1).skip(random)
+    article = db.articles.find({"_id": {"$nin": user.get('visited', [])}}).limit(1).skip(random)
     if article:
         return article[0]
-
+    else:
+        return db.articles.findOne()
 
 @app.route("/next", methods=["GET"])
 def _next():
@@ -91,7 +92,7 @@ def _next():
         return Response(status=403)
 
     if not user['articles']:
-        article = get_random()
+        article = get_random(user)
         article_id = article['_id']
         visited = user.get('visited', [])
         visited.append(article_id)
@@ -105,17 +106,18 @@ def _next():
     similar = list(similar)
 
     if not similar:
-        article = get_random()
+        article = get_random(user)
         user['visited'].append(article['_id'])
         db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
         return Response(json_encode({'article': article}),mimetype="application/json")
 
     match_ids = [i["match1"] if i["match1"] in user["visited"] else i["match2"] for i in similar]
     articles = db.articles.find({"_id": {"$in": match_ids}})
-    user['visited'].append(articles[0]['_id'])
+    random = randint(0, articles.count()-1)
+    user['visited'].append(articles[random]['_id'])
     db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
-    return Response(json_encode({"article": articles[0]}), mimetype="application/json")
-
+    return Response(json_encode({"article": articles[random]}),
+                    mimetype="application/json")
 
 @app.route('/neighbors/<string:id>', methods=["GET"])
 def neighbors(id):
@@ -128,7 +130,6 @@ def neighbors(id):
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 if __name__ == "__main__":
     app.run(debug=True)
