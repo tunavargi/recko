@@ -2,10 +2,11 @@
 <head>
 <button class="next">next</button>
 <button class="like">like</button>
+<button class=nsfw>nsfw</button>
 <div id="url"></div>
 </br>
 </head>
-<body>
+<body style="font-family: 'Courier'">
 <div id="embed">
 
 </div>
@@ -13,20 +14,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 <script>
     var token = $.cookie("token");
+    var nsfw = false;
     var _id;
-    if (!token){
-        $.post("/authenticate", {}, function(response){
-            $.cookie("token", response)});
+    if (!token) {
+        $.post("/authenticate", {}).done(function(response) {
             token = response;
-    }
-    function getter(){
-        $.get("next?token=" + token, function(response){
-            _id = response.article._id;
-            $("#embed").html(response.article.content);
-            $("#url").html('<a href="' + response.article.url +'">' + response.article.url+  '</a>')
+            $.cookie("token", token);
+            getter()
         })
     }
-    getter()
+    else{
+        getter()
+    }
+    function getter() {
+        $.get("next", {
+            token: token,
+            nsfw: nsfw
+        }, function (response) {
+            _id = response.article._id;
+            if (response.article.content.startsWith("http")) {
+                $("#embed").html("<img height=80% src=" + response.article.content + "></img>");
+            }
+            else {
+                $("#embed").html(response.article.content);
+            }
+            $("#url").html('<a href="' + response.article.url + '">' + response.article.url + '</a>')
+        }).fail(function (response) {
+            if (response.status == 403){
+            $.removeCookie("token")
+        }})
+    }
     $('.like').on("click", function(){
      var data = JSON.stringify({url: _id});
      console.log(data);
@@ -42,6 +59,10 @@
 
     });
     $(".next").on("click", function(){
+        getter()
+    });
+    $(".nsfw").on("click", function(){
+        nsfw = !nsfw;
         getter()
     });
 </script>

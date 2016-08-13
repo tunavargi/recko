@@ -23,7 +23,8 @@ def go_embedly(url):
     response = requests.get(req_url, params={"url": url,
                                          "key": EMBEDLY_API_KEY})
     result = response.json()
-    return result.get("url"),result.get("keywords"), result.get("content")
+    return result.get("url"),result.get("keywords"), \
+           result.get("content")
 
 
 @app.route("/authenticate", methods=["POST"])
@@ -32,7 +33,7 @@ def authenticate():
     db.users.insert_one({"articles": [],
                          "visited": [],
                          "token": token})
-    return token
+    return Response(token)
 
 
 @app.route("/like", methods=["POST"])
@@ -72,9 +73,13 @@ def teach():
         return json_encode({"url": item.inserted_id })
     return json_encode({"message": "Nothing inserted"})
 
-def get_random(user):
-    random = randint(0, db.articles.count())
-    article = db.articles.find({"_id": {"$nin": user.get('visited', [])}}).limit(1).skip(random)
+def get_random(user, nsfw=False):
+    filters = {"_id": {"$nin": user.get('visited', [])}, "nsfw": nsfw}
+    count = db.articles.find(filters).count()
+    if not count:
+        return None
+    random = randint(0, count -1)
+    article = db.articles.find(filters).limit(1).skip(random)
     if article:
         return article[0]
     else:
@@ -83,6 +88,9 @@ def get_random(user):
 @app.route("/next", methods=["GET"])
 def _next():
     token = request.args.get("token")
+    nsfw = request.args.get("nsfw")
+    nsfw = nsfw == 'true'
+
     if not token:
         return Response(status=403)
     user = db.users.find_one({"token": token})
@@ -90,7 +98,9 @@ def _next():
         return Response(status=403)
 
     if not user['articles']:
-        article = get_random(user)
+        article = get_random(user, nsfw=nsfw)
+        if not article:
+            return Response(status=404)
         article_id = article['_id']
         visited = user.get('visited', [])
         visited.append(article_id)
@@ -98,20 +108,23 @@ def _next():
         return Response(json_encode({'article': article}),
                         mimetype="application/json")
 
-    query = {"$and":[{"match1": {"$nin": user["visited"]}},
-                     {"match2": {"$nin": user["visited"]}}]}
+    query = {"match1":{"$in": user["articles"]},
+             "match2": {"$nin": user["visited"]}}
 
     similar = db.article_match.find(query).sort([("dst", 1)])
     similar = list(similar)
+    print user["visited"]
+    match_ids = [i["match2"] for i in similar if i["match2"]]
+    articles = db.articles.find({"_id": {"$in": match_ids}, "nsfw": nsfw})
 
-    if not similar:
-        article = get_random(user)
+    if not articles.count():
+        article = get_random(user, nsfw=nsfw)
+        if not article:
+            return Response(status=404)
         user['visited'].append(article['_id'])
         db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
         return Response(json_encode({'article': article}),mimetype="application/json")
 
-    match_ids = [i["match1"] if i["match1"] in user["visited"] else i["match2"] for i in similar]
-    articles = db.articles.find({"_id": {"$in": match_ids}})
     random = randint(0, articles.count()-1)
     user['visited'].append(articles[random]['_id'])
     db.users.update({"token": token},

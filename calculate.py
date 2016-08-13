@@ -26,14 +26,19 @@ def calculate_euclidaen_distance(new_article, matched_article):
 def calculater():
     while True:
         id = redisconn.blpop('queue')
-        article = db.articles.find_one({"_id": ObjectId(id[1])})
-        words = [i["name"] for i in article["keywords"] if i['score'] > 45]
-        matching_urls = db.articles.find({"keywords.name": {"$in": words}, "_id": {"$ne": ObjectId(id[1])}})
-        for i in matching_urls:
-            dst = calculate_euclidaen_distance(article, i)
-            db.article_match.insert_one({"match1": article['_id'],
-                                         "match2": i['_id'],
-                                         "dst": dst})
-
+        try:
+            article = db.articles.find_one({"_id": ObjectId(id[1])})
+            words = [i["name"] for i in article["keywords"] if i['score'] > 45]
+            matching_urls = db.articles.find({"keywords.name": {"$in": words}, "_id": {"$ne": ObjectId(id[1])}})
+            for i in matching_urls:
+                dst = calculate_euclidaen_distance(article, i)
+                db.article_match.insert_one({"match1": article['_id'],
+                                             "match2": i['_id'],
+                                             "dst": dst})
+                db.article_match.insert_one({"match2": article['_id'],
+                                             "match1": i['_id'],
+                                             "dst": dst})
+        except Exception as e:
+            print(e)
 if __name__ == "__main__":
     calculater()
