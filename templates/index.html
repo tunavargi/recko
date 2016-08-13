@@ -3,6 +3,7 @@
 <button class="next">next</button>
 <button class="like">like</button>
 <button class=nsfw>nsfw</button>
+<button onclick="location.href = 'https://github.com/vargi/reko'">Check the code(github)</button>
 <div id="url"></div>
 </br>
 </head>
@@ -47,7 +48,6 @@
 
     var like = function(){
      var data = JSON.stringify({url: _id});
-     console.log(data);
      $.ajax({type: 'POST',
              url: '/like?token=' + token,
              data: data,
@@ -59,7 +59,7 @@
             });
 
     }
-    $('.like').on("click", like());
+    $('.like').on("click", function(){like()});
     $(".next").on("click", function(){
         getter()
     });

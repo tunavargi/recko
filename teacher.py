@@ -17,10 +17,10 @@ reddit_nsfw = [
     "https://www.reddit.com/r/nsfw_gifs/.json",
     "https://www.reddit.com/r/lesbian/.json",
     "https://www.reddit.com/r/boobs/.json",
+    "https://www.reddit.com/r/gifsgonewild/.json",
     "https://www.reddit.com/r/stockings/.json",
     "https://www.reddit.com/r/realgirls/.json",
 ]
-
 
 reddit_feeds = [
     "http://www.reddit.com/r/python/.json",

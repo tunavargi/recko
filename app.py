@@ -48,6 +48,8 @@ def like():
 
     liked = user['articles'][:100]
     article = db.articles.find_one({"_id": ObjectId(url_id)})
+    if not article:
+        return Response(status=404)
 
     if not article["_id"] in liked:
         liked.append(article["_id"])
@@ -113,7 +115,6 @@ def _next():
 
     similar = db.article_match.find(query).sort([("dst", 1)])
     similar = list(similar)
-    print user["visited"]
     match_ids = [i["match2"] for i in similar if i["match2"]]
     articles = db.articles.find({"_id": {"$in": match_ids}, "nsfw": nsfw})
 
