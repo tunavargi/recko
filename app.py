@@ -6,8 +6,6 @@ from random import randint
 import redis
 import requests
 from bson import ObjectId
-from bson import json_util
-
 from flask import Flask, Response, render_template
 from flask import request
 from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME
