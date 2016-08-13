@@ -97,7 +97,8 @@ def _next():
         visited = user.get('visited', [])
         visited.append(article_id)
         db.users.update({"token": token}, {"$set": {"visited": visited}})
-        return Response(json_encode({'article': article}),mimetype="application/json")
+        return Response(json_encode({'article': article}),
+                        mimetype="application/json")
 
     query = {"$and":[{"match1": {"$nin": user["visited"]}},
                      {"match2": {"$nin": user["visited"]}}]}
@@ -115,7 +116,8 @@ def _next():
     articles = db.articles.find({"_id": {"$in": match_ids}})
     random = randint(0, articles.count()-1)
     user['visited'].append(articles[random]['_id'])
-    db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
+    db.users.update({"token": token},
+                    {"$set": {"visited": user['visited']}})
     return Response(json_encode({"article": articles[random]}),
                     mimetype="application/json")
 

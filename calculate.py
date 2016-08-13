@@ -16,8 +16,11 @@ def calculate_euclidaen_distance(new_article, matched_article):
     all_keywords = [i for i in [i["name"] for i in new_article["keywords"] if i["score"] >= 50]] + [i for i in [i["name"] for i in matched_article["keywords"] if i["score"] >= 50]]
     a = tuple([new_article_kws.get(i, 0) for i in all_keywords])
     b = tuple([matched_article_kws.get(i, 0) for i in all_keywords])
-    dst = distance.euclidean(a,b)
-    return dst
+    try:
+        dst = distance.euclidean(a,b)
+        return dst
+    except:
+        print a,b
 
 
 def calculater():

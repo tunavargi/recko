@@ -61,7 +61,7 @@ def teach(url):
 
 def teach_reddit():
     for feed in reddit_feeds:
-        d = requests.get(feed,headers = {'User-agent': 'Reko-parser'})
+        d = requests.get(feed, headers={'User-agent': 'Reko-parser'})
         d = d.json()
         for child in d['data']["children"]:
             url = child['data']["url"]
@@ -77,4 +77,5 @@ def teach_wired():
 if __name__ == "__main__":
     while True:
         teach_wired()
+        teach_reddit()
         time.sleep(60*60*3)
