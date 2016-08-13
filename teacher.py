@@ -16,6 +16,7 @@ reddit_nsfw = [
     "https://www.reddit.com/r/NSFW_GIF/.json",
     "https://www.reddit.com/r/nsfw_gifs/.json",
     "https://www.reddit.com/r/lesbian/.json",
+    "https://www.reddit.com/r/boobs/.json",
     "https://www.reddit.com/r/stockings/.json",
     "https://www.reddit.com/r/realgirls/.json",
 ]
