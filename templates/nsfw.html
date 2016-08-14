@@ -14,7 +14,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
 <script>
     var token = $.cookie("token");
-    var nsfw = false;
+    var nsfw = true;
     var _id;
     if (!token) {
         $.post("/authenticate", {}).done(function(response) {
@@ -62,6 +62,7 @@
     $(".next").on("click", function(){
         getter()
     });
+
     $(document).keydown(function(e) {
         switch(e.which) {
             case 37: // left

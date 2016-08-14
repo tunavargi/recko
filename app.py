@@ -13,8 +13,8 @@ from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
 
 application = Flask(__name__)
 
-client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
+client = MongoClient(host=MONGO_HOST, port=MONGO_PORT, connect=False)
 db = client[DB_NAME]
 
 
@@ -92,7 +92,6 @@ def _next():
     token = request.args.get("token")
     nsfw = request.args.get("nsfw")
     nsfw = nsfw == 'true'
-
     if not token:
         return Response(status=403)
     user = db.users.find_one({"token": token})
@@ -144,6 +143,14 @@ def neighbors(id):
 @application.route('/')
 def index():
     return render_template('index.html')
+
+@application.route('/about')
+def about():
+    return render_template('about.html')
+
+@application.route('/nsfw')
+def nsfw():
+    return render_template('nsfw.html')
 
 if __name__ == "__main__":
     application.run(debug=True)
