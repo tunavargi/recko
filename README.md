@@ -51,5 +51,5 @@ Calculates distance between articles and recommend new articles to read
 - embedly account for extracting kw's
 
 ## Contributors
-- [tuna vargi](https://github.com/vargi)
-- [bugra uluyurt](https://github.com/bugrauluyurt/)
+- [Tuna Vargi](https://github.com/vargi)
+- [Bugra Uluyurt](https://github.com/bugrauluyurt/)
