@@ -1,16 +1,16 @@
 from datetime import datetime
-import time
 import feedparser
 import redis
 import requests
-from config import DB_NAME, REDIS_HOST, EMBEDLY_API_KEY
-from pymongo import MongoClient
+import os, sys
 
-from config import REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
-client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
+
+from config import EMBEDLY_API_KEY, REDIS_HOST
+from models.articles import Article
+
 
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
-db = client[DB_NAME]
 
 reddit_nsfw = [
     "https://www.reddit.com/r/WatchItForThePlot/.json",
@@ -60,40 +60,44 @@ wired_feeds = [
 def go_embedly(url):
     print url
     req_url = "https://api.embedly.com/1/extract"
-    response = requests.get(req_url, params={"url": url,
-                                             "key": EMBEDLY_API_KEY})
+    response = requests.get(req_url,
+                            params={"url": url,
+                                    "key": EMBEDLY_API_KEY})
+
     result = response.json()
     embed_url = "https://api.embedly.com/1/oembed"
-    embed_response = requests.get(embed_url, params={"url": url,
-                                               "key": EMBEDLY_API_KEY})
+    embed_response = requests.get(embed_url,
+                                  params={"url": url,
+                                          "key": EMBEDLY_API_KEY})
     content = embed_response.json()
-
 
     imgur = False
     if content.get("url"):
         imgur = "imgur" in content.get("url")
     if imgur:
-        return result.get("keywords"), content["url"]
+        return result.get("keywords"), content["url"], content["title"]
     elif content.get("html"):
-        return result.get("keywords"), content["html"]
+        return result.get("keywords"), content["html"], content["title"]
     else:
-        return result.get("keywords"), result.get("content")
-
+        return result.get("keywords"), result.get("content"), result.get("title")
 
 def teach(url,
           hardcoded_keywords=None,
           nsfw=False):
 
-    if not db.articles.find_one({"url": url}):
-        keywords, content = go_embedly(url)
+    if not Article.q.filter({"url": url}).first():
+        keywords, content, title = go_embedly(url)
+        print keywords, content
         if content:
-            item = db.articles.insert_one({"url": url,
-                                               "create_date": datetime.now(),
-                                               "keywords": keywords if keywords else hardcoded_keywords,
-                                               "nsfw": nsfw,
-                                               "content": content})
-            redisconn.rpush("queue", str(item.inserted_id))
-            print item.inserted_id
+            item = Article(**{"url": url,
+                            "create_date": datetime.now(),
+                            "keywords": keywords if keywords else hardcoded_keywords,
+                            "nsfw": nsfw,
+                            "title": title,
+                            "content": content})
+            item_id = item.save()
+            redisconn.rpush("queue", str(item_id))
+            print item_id
 
 def teach_reddit():
     for feed in reddit_feeds:
@@ -132,8 +136,8 @@ def nsfw():
     teach_nsfw()
 
 def teacher():
-    nsfw()
     reddit()
     wired()
+    nsfw()
 
 teacher()

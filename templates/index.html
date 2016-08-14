@@ -47,7 +47,8 @@
             token: token,
             nsfw: nsfw
         }, function (response) {
-            _id = response.article._id;
+            _id = response.article.id;
+
             if (response.article.content.startsWith("http")) {
                 $("#embed").html("<img height=80% src=" + response.article.content + "></img>");
             }
@@ -63,6 +64,7 @@
 
     var like = function(){
      var data = JSON.stringify({url: _id});
+
      $.ajax({type: 'POST',
              url: '/like?token=' + token,
              data: data,

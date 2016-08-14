@@ -21,7 +21,7 @@ db = client[DB_NAME]
 def go_embedly(url):
     req_url = "https://api.embedly.com/1/extract"
     response = requests.get(req_url, params={"url": url,
-                                         "key": EMBEDLY_API_KEY})
+                                             "key": EMBEDLY_API_KEY})
     result = response.json()
     return result.get("url"),result.get("keywords"), \
            result.get("content")
@@ -35,110 +35,80 @@ def authenticate():
                          "token": token})
     return Response(token)
 
+@application.route("/likes", methods=["GET"])
+def likes():
+    from models.users import User
+    token = request.args.get("token")
+    offset = request.args.get("offset", 0)
+
+    if not token:
+        return Response(status=403)
+    user = User.q.filter_by(token=token).first()
+    if not user:
+        return Response(status=403)
+
+    from models.articles import Article
+    user_likes = user.articles[::-1]
+    articles = Article.q.filter({"_id": {"$in": user_likes}}).skip(offset).all()
+    bundle = [i.serialize() for i in articles]
+    return Response(json_encode({"articles": bundle}))
+
 
 @application.route("/like", methods=["POST"])
 def like():
+    from models.users import User
     token = request.args.get("token")
     url_id = request.json.get("url")
     if not token:
         return Response(status=403)
-    user = db.users.find_one({"token": token})
+    user = User.q.filter_by(token=token).first()
     if not user:
         return Response(status=403)
 
-    liked = user['articles'][:100]
-    article = db.articles.find_one({"_id": ObjectId(url_id)})
-    if not article:
-        return Response(status=404)
+    from models.users import Article
+    article = Article.q.fetch_by_id(url_id)
+    user.like(article)
+    return Response(json_encode({"message": "liked"}))
 
-    if not article["_id"] in liked:
-        liked.append(article["_id"])
-    db.users.update({"token":token},
-                    {"$set": {"articles": liked}})
-
-    return Response(json_encode({"message" : "liked"}))
-
-
-@application.route('/teach', methods=['GET'])
-def teach():
-    data = request.args
-    url = data.get("url")
-    _url, keywords, content = go_embedly(url)
-    if not db.articles.find_one({"url": _url}):
-        if content:
-            item = db.articles.insert_one({"url": _url,
-                                         "create_date": datetime.now(),
-                                         "keywords": keywords,
-                                         "content": content})
-
-        redisconn.rpush("queue", str(item.inserted_id))
-        return json_encode({"url": item.inserted_id })
-    return json_encode({"message": "Nothing inserted"})
-
-def get_random(user, nsfw=False):
-    filters = {"_id": {"$nin": user.get('visited', [])}, "nsfw": nsfw}
-    count = db.articles.find(filters).count()
-    if not count:
-        return None
-    random = randint(0, count -1)
-    article = db.articles.find(filters).limit(1).skip(random)
-    if article:
-        return article[0]
-    else:
-        return db.articles.findOne()
 
 @application.route("/next", methods=["GET"])
 def _next():
+    from models.users import User
+
     token = request.args.get("token")
     nsfw = request.args.get("nsfw")
     nsfw = nsfw == 'true'
     if not token:
         return Response(status=403)
-    user = db.users.find_one({"token": token})
+    user = User.q.filter_by(token=token).first()
     if not user:
         return Response(status=403)
 
-    if not user['articles']:
-        article = get_random(user, nsfw=nsfw)
+    if not len(user.articles) >= 5:
+        # IF USER LIKED ARTICLES ARE NOT MORE THAN 5
+        # RETURN RANDOM
+        article = user.random_article(user, nsfw=nsfw)
         if not article:
             return Response(status=404)
-        article_id = article['_id']
-        visited = user.get('visited', [])
-        visited.append(article_id)
-        db.users.update({"token": token}, {"$set": {"visited": visited}})
-        return Response(json_encode({'article': article}),
+
+        user.visit(article)
+        return Response(json_encode({'article': article.serialize()}),
                         mimetype="application/json")
 
-    query = {"match1":{"$in": user["articles"]},
-             "match2": {"$nin": user["visited"]}}
-
-    similar = db.article_match.find(query).sort([("dst", 1)])
-    similar = list(similar)
-    match_ids = [i["match2"] for i in similar if i["match2"]]
-    articles = db.articles.find({"_id": {"$in": match_ids}, "nsfw": nsfw})
-
-    if not articles.count():
-        article = get_random(user, nsfw=nsfw)
+    suggested_articles = user.suggested_articles(nsfw=nsfw)
+    if not suggested_articles:
+        article = user.random_article(nsfw=nsfw)
         if not article:
             return Response(status=404)
-        user['visited'].append(article['_id'])
-        db.users.update({"token": token}, {"$set": {"visited": user['visited']}})
-        return Response(json_encode({'article': article}),mimetype="application/json")
+        user.visit(article)
+        return Response(json_encode({'article': article.serialize()}),
+                        mimetype="application/json")
 
-    random = randint(0, articles.count()-1)
-    user['visited'].append(articles[random]['_id'])
-    db.users.update({"token": token},
-                    {"$set": {"visited": user['visited']}})
-    return Response(json_encode({"article": articles[random]}),
+    random = randint(0, len(suggested_articles)-1)
+    random_suggested = suggested_articles[random]
+    visited_article = user.visit(random_suggested)
+    return Response(json_encode({"article": visited_article.serialize()}),
                     mimetype="application/json")
-
-@application.route('/neighbors/<string:id>', methods=["GET"])
-def neighbors(id):
-    query = {"$or":[{"match1": ObjectId(id)}, {"match2": ObjectId(id)}]}
-    similar = db.article_match.find(query).sort([("dst", 1)])
-    match_ids = [i["match1"] if i["match1"] == ObjectId(id) else i["match2"] for i in similar]
-    articles = db.articles.find({"_id": {"$in": match_ids}})
-    return Response(json_encode({"articles": articles}))
 
 @application.route('/')
 def index():
