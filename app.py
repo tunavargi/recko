@@ -2,7 +2,6 @@ import json
 import uuid
 from datetime import datetime
 from random import randint
-
 import redis
 import requests
 from bson import ObjectId
@@ -10,9 +9,10 @@ from flask import Flask, Response, render_template
 from flask import request
 from pymongo import MongoClient
 from utils import json_encode
-
-app = Flask(__name__)
 from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
+
+application = Flask(__name__)
+
 client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 db = client[DB_NAME]
@@ -27,7 +27,7 @@ def go_embedly(url):
            result.get("content")
 
 
-@app.route("/authenticate", methods=["POST"])
+@application.route("/authenticate", methods=["POST"])
 def authenticate():
     token = "tok-%s" % uuid.uuid4().hex
     db.users.insert_one({"articles": [],
@@ -36,7 +36,7 @@ def authenticate():
     return Response(token)
 
 
-@app.route("/like", methods=["POST"])
+@application.route("/like", methods=["POST"])
 def like():
     token = request.args.get("token")
     url_id = request.json.get("url")
@@ -59,7 +59,7 @@ def like():
     return Response(json_encode({"message" : "liked"}))
 
 
-@app.route('/teach', methods=['GET'])
+@application.route('/teach', methods=['GET'])
 def teach():
     data = request.args
     url = data.get("url")
@@ -87,7 +87,7 @@ def get_random(user, nsfw=False):
     else:
         return db.articles.findOne()
 
-@app.route("/next", methods=["GET"])
+@application.route("/next", methods=["GET"])
 def _next():
     token = request.args.get("token")
     nsfw = request.args.get("nsfw")
@@ -133,7 +133,7 @@ def _next():
     return Response(json_encode({"article": articles[random]}),
                     mimetype="application/json")
 
-@app.route('/neighbors/<string:id>', methods=["GET"])
+@application.route('/neighbors/<string:id>', methods=["GET"])
 def neighbors(id):
     query = {"$or":[{"match1": ObjectId(id)}, {"match2": ObjectId(id)}]}
     similar = db.article_match.find(query).sort([("dst", 1)])
@@ -141,9 +141,9 @@ def neighbors(id):
     articles = db.articles.find({"_id": {"$in": match_ids}})
     return Response(json_encode({"articles": articles}))
 
-@app.route('/')
+@application.route('/')
 def index():
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    application.run(debug=True)
