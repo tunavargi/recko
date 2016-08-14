@@ -37,10 +37,10 @@ def calculater():
                                             "_id": {"$ne": ObjectId(id[1])}})
             for i in matching_urls:
                 dst = calculate_euclidaen_distance(article, i)
-                article1 = ArticleMatch({"match1": article.id,
+                article1 = ArticleMatch(**{"match1": article.id,
                               "match2": i.id,
                               "dst":dst})
-                article2 = ArticleMatch({"match2": article.id,
+                article2 = ArticleMatch(**{"match2": article.id,
                               "match1": i.id,
                               "dst":dst})
                 article1.save()

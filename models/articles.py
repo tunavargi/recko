@@ -15,10 +15,12 @@ class Article(BaseModel):
 
     def save(self):
         if self.id:
-            db.users.update({"_id": self.id},
-                            {"$set": self.serialize()})
+            db.articles.update({"_id": self.id},
+                                {"$set": self.serialize()})
+            return self._id
         else:
-            db.users.insert(self.serialize())
+            inserted_id = db.articles.insert(self.serialize())
+            return inserted_id
 
     def serialize(self):
         return {'id': self.id,
