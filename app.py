@@ -89,6 +89,7 @@ def get_random(user, nsfw=False):
 
 @application.route("/next", methods=["GET"])
 def _next():
+    from models.articles import Article
     token = request.args.get("token")
     nsfw = request.args.get("nsfw")
     nsfw = nsfw == 'true'
@@ -132,13 +133,6 @@ def _next():
     return Response(json_encode({"article": articles[random]}),
                     mimetype="application/json")
 
-@application.route('/neighbors/<string:id>', methods=["GET"])
-def neighbors(id):
-    query = {"$or":[{"match1": ObjectId(id)}, {"match2": ObjectId(id)}]}
-    similar = db.article_match.find(query).sort([("dst", 1)])
-    match_ids = [i["match1"] if i["match1"] == ObjectId(id) else i["match2"] for i in similar]
-    articles = db.articles.find({"_id": {"$in": match_ids}})
-    return Response(json_encode({"articles": articles}))
 
 @application.route('/')
 def index():

@@ -60,8 +60,10 @@ wired_feeds = [
 def go_embedly(url):
     print url
     req_url = "https://api.embedly.com/1/extract"
-    response = requests.get(req_url, params={"url": url,
-                                             "key": EMBEDLY_API_KEY})
+    response = requests.get(req_url,
+                            params={"url": url,
+                                    "key": EMBEDLY_API_KEY})
+
     result = response.json()
     embed_url = "https://api.embedly.com/1/oembed"
     embed_response = requests.get(embed_url, params={"url": url,
