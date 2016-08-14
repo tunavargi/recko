@@ -3,14 +3,13 @@ import time
 import feedparser
 import redis
 import requests
-from config import DB_NAME, REDIS_HOST, EMBEDLY_API_KEY
+from config import  EMBEDLY_API_KEY
+from models.articles import Article
 from pymongo import MongoClient
 
 from config import REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
-client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
 
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
-db = client[DB_NAME]
 
 reddit_nsfw = [
     "https://www.reddit.com/r/WatchItForThePlot/.json",
@@ -86,17 +85,18 @@ def teach(url,
           hardcoded_keywords=None,
           nsfw=False):
 
-    if not db.articles.find_one({"url": url}):
+    if not Article.q.filter({"url": url}).first():
         keywords, content = go_embedly(url)
         print keywords, content
         if content:
-            item = db.articles.insert_one({"url": url,
-                                               "create_date": datetime.now(),
-                                               "keywords": keywords if keywords else hardcoded_keywords,
-                                               "nsfw": nsfw,
-                                               "content": content})
+            item = Article({"url": url,
+                            "create_date": datetime.now(),
+                            "keywords": keywords if keywords else hardcoded_keywords,
+                            "nsfw": nsfw,
+                            "content": content})
+            item.save()
             redisconn.rpush("queue", str(item.inserted_id))
-            print item.inserted_id
+            print item.id
 
 def teach_reddit():
     for feed in reddit_feeds:
