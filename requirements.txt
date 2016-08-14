@@ -4,3 +4,4 @@ scipy==0.18.9
 pymongo==3.3.0
 redis==2.10.5
 requests==2.10.0
+uwsgi==2.0.13.1
