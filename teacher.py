@@ -86,6 +86,7 @@ def teach(url,
 
     if not db.articles.find_one({"url": url}):
         keywords, content = go_embedly(url)
+        print keywords, content
         if content:
             item = db.articles.insert_one({"url": url,
                                                "create_date": datetime.now(),
