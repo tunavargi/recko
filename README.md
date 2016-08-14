@@ -17,8 +17,9 @@ Calculates distance between articles and recommend new articles to read
     
 - copy the `config.py.copy` as `config.py`
 - change inside according to your config details
-- run app.py for flask web server 
-- run calculate.py for distance calculating worker
+- run app.py for flask web server
+- run teacher.py for teaching articles
+- run calculate.py for distance calculating worker 
 
 ## Usage
  
