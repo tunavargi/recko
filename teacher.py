@@ -66,10 +66,10 @@ def go_embedly(url):
 
     result = response.json()
     embed_url = "https://api.embedly.com/1/oembed"
-    embed_response = requests.get(embed_url, params={"url": url,
-                                               "key": EMBEDLY_API_KEY})
+    embed_response = requests.get(embed_url,
+                                  params={"url": url,
+                                          "key": EMBEDLY_API_KEY})
     content = embed_response.json()
-
 
     imgur = False
     if content.get("url"):
