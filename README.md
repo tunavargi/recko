@@ -2,10 +2,14 @@
 
 Calculates distance between articles and recommend new articles to read
 
-
 - Teach some article url's to reko
 - Calculates the distance between teached articles according to keywords extracted
 - Then get closest neighbors of given articles
+- brings recommendations according to user's liked articles
+
+## Example
+![alt_text](readme.png)
+
 
 ## Setup
     
