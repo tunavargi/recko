@@ -1,4 +1,6 @@
 from app import db
+from bson import ObjectId
+
 
 class classproperty(property):
     def __get__(self, cls, owner):

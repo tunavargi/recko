@@ -35,45 +35,40 @@ def authenticate():
                          "token": token})
     return Response(token)
 
+@application.route("/likes", methods=["GET"])
+def likes():
+    from models.users import User
+    token = request.args.get("token")
+    offset = request.args.get("offset", 0)
+
+    if not token:
+        return Response(status=403)
+    user = User.q.filter_by(token=token).first()
+    if not user:
+        return Response(status=403)
+
+    from models.articles import Article
+    user_likes = user.articles[::-1]
+    articles = Article.q.filter({"_id": {"$in": user_likes}}).skip(offset).all()
+    bundle = [i.serialize() for i in articles]
+    return Response(json_encode({"articles": bundle}))
+
 
 @application.route("/like", methods=["POST"])
 def like():
+    from models.users import User
     token = request.args.get("token")
     url_id = request.json.get("url")
     if not token:
         return Response(status=403)
-    user = db.users.find_one({"token": token})
+    user = User.q.filter_by(token=token).first()
     if not user:
         return Response(status=403)
 
-    liked = user['articles'][:100]
-    article = db.articles.find_one({"_id": ObjectId(url_id)})
-    if not article:
-        return Response(status=404)
-
-    if not article["_id"] in liked:
-        liked.append(article["_id"])
-    db.users.update({"token":token},
-                    {"$set": {"articles": liked}})
-
-    return Response(json_encode({"message" : "liked"}))
-
-
-@application.route('/teach', methods=['GET'])
-def teach():
-    data = request.args
-    url = data.get("url")
-    _url, keywords, content = go_embedly(url)
-    if not db.articles.find_one({"url": _url}):
-        if content:
-            item = db.articles.insert_one({"url": _url,
-                                         "create_date": datetime.now(),
-                                         "keywords": keywords,
-                                         "content": content})
-
-        redisconn.rpush("queue", str(item.inserted_id))
-        return json_encode({"url": item.inserted_id })
-    return json_encode({"message": "Nothing inserted"})
+    from models.users import Article
+    article = Article.q.fetch_by_id(url_id)
+    user.like(article)
+    return Response(json_encode({"message": "liked"}))
 
 
 @application.route("/next", methods=["GET"])
