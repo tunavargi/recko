@@ -14,20 +14,39 @@ body {
     margin-top:60px;
 }
 .navigation {
-    width:220px;
-    margin:0 auto;
+    text-align:center;
     padding-bottom:20px;
     padding-top:40px;
 }
-.navigation.single {
-    width:240px;
+button:hover {
+    background-color:transparent;
 }
+
+button:focus {
+    background-color:transparent;
+    outline: none !important;
+}
+
+.navigation button{
+    background-color:transparent;
+    display:inline-block;
+    border:1px solid #5a5a5a;
+    padding:10px 15px;
+    color:black;
+    font-weight:200;
+    border-radius:20px;
+}
+.navigation button:focus{
+    text-decoration: none;
+}
+
 #url {
     padding:10px;
     text-align: center;
     font-weight: bold;
     text-decoration: none;
     opacity:0.8;
+    overflow: hidden;
 }
 #url a {
     color:#E74C3C;
@@ -50,29 +69,83 @@ body {
 }
 #embed iframe {
     width:100%;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+.footer {
+    text-align:center;
+    font-size:20px;
+    padding-bottom:40px;
+}
+.footer a {
+    display: inline-block;
+    color:#a9a9a9;
+    text-decoration: none;
+    opacity: 1;
+}
+
+.footer a:hover {
+    opacity: 0.8;
+}
+
+.footer a span{
+    display:block;
+}
+
+.footer a i {
+    font-size:40px;
 }
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
 and (min-device-width : 320px) 
 and (max-device-width : 480px) {
 /* Styles */
-    body {
-        font-size: 2.5em;
-        line-height:2em;
-        text-align: inherit;
-    }
     .logo {
-        font-size:150px;
-        margin-top:100px;
+        font-size:190px;
+        margin-top:120px;
+        margin-bottom:80px;
     }
-    .navigation {
-        width:620px;
-        margin-top:30px;
-        margin-bottom:30px;
+
+    .navigation button {
+        font-size:50px;
+        font-weight:200;
+        padding:30px 35px;
+        margin-left:15px;
+        border-radius:40px;
     }
-    .btn {
-        font-size:1.5em;
-        padding:30px;
-        margin:10px;
+
+    .link {
+        margin-top:40px;
+        margin-bottom:20px;
+        font-size:50px;
     }
+
+    #url{
+        margin-bottom:40px;
+    }
+
+    #url a{
+        font-size:50px;
+    }
+
+    #embed, .about-text, .about-text h2 {
+        font-size:50px;
+        line-height: 70px;
+        padding-bottom:40px;
+    }
+
+    #embed p{
+        padding-bottom:10px;    
+    }
+
+    .footer {
+        font-size:50px;
+        padding-bottom:40px;
+    }
+    
+    .footer a i {
+        font-size:80px;
+        padding-bottom:20px;
+    }    
 }
