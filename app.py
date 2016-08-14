@@ -87,7 +87,7 @@ def _next():
     if not len(user.articles) >= 5:
         # IF USER LIKED ARTICLES ARE NOT MORE THAN 5
         # RETURN RANDOM
-        article = user.random_article(user, nsfw=nsfw)
+        article = user.random_article(nsfw=nsfw)
         if not article:
             return Response(status=404)
 
