@@ -1,10 +1,11 @@
 import redis
 from bson import ObjectId
-from config import REDIS_HOST, DB_NAME
 from pymongo import MongoClient
 from scipy.spatial import distance
 
-client = MongoClient()
+from config import REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
+client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 db = client[DB_NAME]
 

@@ -6,7 +6,9 @@ import requests
 from config import DB_NAME, REDIS_HOST, EMBEDLY_API_KEY
 from pymongo import MongoClient
 
-client = MongoClient()
+from config import REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
+client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
+
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 db = client[DB_NAME]
 

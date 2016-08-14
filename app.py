@@ -8,12 +8,12 @@ import requests
 from bson import ObjectId
 from flask import Flask, Response, render_template
 from flask import request
-from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME
 from pymongo import MongoClient
 from utils import json_encode
 
 app = Flask(__name__)
-client = MongoClient()
+from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
+client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 db = client[DB_NAME]
 
