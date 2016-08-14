@@ -11,7 +11,7 @@ from pymongo import MongoClient
 from utils import json_encode
 from config import EMBEDLY_API_KEY, REDIS_HOST, DB_NAME, MONGO_HOST, MONGO_PORT
 
-application = Flask(__name__)
+application = Flask(__name__, static_url_path='/static')
 
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 client = MongoClient(host=MONGO_HOST, port=MONGO_PORT, connect=False)
