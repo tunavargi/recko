@@ -49,3 +49,7 @@ Calculates distance between articles and recommend new articles to read
 - mongodb
 - redis
 - embedly account for extracting kw's
+
+## Contributors
+- [tuna vargi](https://github.com/vargi)
+- [bugra uluyurt](https://github.com/bugrauluyurt/)
