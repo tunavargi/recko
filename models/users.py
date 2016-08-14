@@ -50,7 +50,7 @@ class User(BaseModel):
 
         similar = ArticleMatch.q.filter(query).sort([("dst", 1)]).all()
         similar = list(similar)
-        match_ids = [i["match2"] for i in similar if i["match2"]]
+        match_ids = [i.match2 for i in similar if i.match2]
         articles = Article.q.filter({"_id": {"$in": match_ids}, "nsfw": nsfw}).all()
         return list(articles)
 

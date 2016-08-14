@@ -39,6 +39,7 @@ class ArticleMatch(BaseModel):
         self.match1 = None
         self.match2 = None
         self.dst = 0
+        super(ArticleMatch, self).__init__(*args, **kwargs)
 
     def serialize(self):
         return {"id": self.id,
@@ -49,6 +50,6 @@ class ArticleMatch(BaseModel):
     def save(self):
         if self.id:
             db.article_matches.update({"_id": self.id},
-                            {"$set": self.serialize()})
+                                      {"$set": self.serialize()})
         else:
             db.article_matches.insert(self.serialize())
