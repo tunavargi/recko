@@ -10,7 +10,6 @@ class classproperty(property):
 class BaseModel(object):
     def __init__(self, *args, **kwargs):
         self._id = None
-
         for key, value in kwargs.items():
             try:
                 setattr(self, key, value)

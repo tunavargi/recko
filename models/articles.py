@@ -1,6 +1,59 @@
 from app import db
 from models.base import BaseModel
 
+class ArticleLike(BaseModel):
+    __collection_name__ = 'article_likes'
+
+    def __init__(self, *args, **kwargs):
+        self.article = None
+        self.user = None
+        self.create_date = None
+        self.url = None
+        self.nsfw = None
+        super(ArticleLike, self).__init__(*args, **kwargs)
+
+    def save(self):
+        if self.id:
+            db.article_likes.update({"_id": self.id},
+                                {"$set": self.serialize()})
+            return self._id
+        else:
+            inserted_id = db.article_likes.insert(self.serialize())
+            return inserted_id
+
+    def serialize(self):
+        return {'article': self.article,
+                "create_date": self.create_date,
+                "user": self.user,
+                "url": self.url}
+
+
+class ArticleVisit(BaseModel):
+    __collection_name__ = 'article_visits'
+
+    def __init__(self, *args, **kwargs):
+        self.article = None
+        self.user = None
+        self.nsfw = False
+        self.create_date = None
+        super(ArticleVisit, self).__init__(*args, **kwargs)
+
+    def save(self):
+        if self._id:
+            db.article_visits.update({"_id": self.id},
+                                     {"$set": self.serialize()})
+            return self._id
+        else:
+            inserted_id = db.article_visits.insert(self.serialize())
+            return inserted_id
+
+    def serialize(self):
+        return {'article': self.article,
+                "nsfw": self.nsfw,
+                "user": self.user,
+                "create_date": self.create_date,
+                "url": self.url}
+
 
 class Article(BaseModel):
 
@@ -10,6 +63,7 @@ class Article(BaseModel):
         self.url = None
         self.create_date = None
         self.keywords = []
+        self.nsfw = False
         self.content = None
         super(Article, self).__init__(*args, **kwargs)
 
@@ -23,12 +77,12 @@ class Article(BaseModel):
             return inserted_id
 
     def serialize(self):
-        return {'id': self.id,
-                'url': self.url,
+        return {"id": self._id,
+                "url": self.url,
+                "nsfw": self.nsfw,
                 "create_date": self.create_date,
                 "keywords": self.keywords,
                 "content": self.content}
-
 
 
 class ArticleMatch(BaseModel):

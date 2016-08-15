@@ -75,9 +75,9 @@ def go_embedly(url):
     if content.get("url"):
         imgur = "imgur" in content.get("url")
     if imgur:
-        return result.get("keywords"), content["url"], content["title"]
+        return result.get("keywords"), content["url"], ""
     elif content.get("html"):
-        return result.get("keywords"), content["html"], content["title"]
+        return result.get("keywords"), content["html"], content.get("title", "")
     else:
         return result.get("keywords"), result.get("content"), result.get("title")
 
@@ -87,14 +87,14 @@ def teach(url,
 
     if not Article.q.filter({"url": url}).first():
         keywords, content, title = go_embedly(url)
-        print keywords, content
+        print title
         if content:
             item = Article(**{"url": url,
-                            "create_date": datetime.now(),
-                            "keywords": keywords if keywords else hardcoded_keywords,
-                            "nsfw": nsfw,
-                            "title": title,
-                            "content": content})
+                              "create_date": datetime.now(),
+                              "keywords": keywords if keywords else hardcoded_keywords,
+                              "nsfw": nsfw,
+                              "title": title,
+                              "content": content})
             item_id = item.save()
             redisconn.rpush("queue", str(item_id))
             print item_id

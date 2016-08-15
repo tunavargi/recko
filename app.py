@@ -67,6 +67,7 @@ def like():
 
     from models.users import Article
     article = Article.q.fetch_by_id(url_id)
+
     user.like(article)
     return Response(json_encode({"message": "liked"}))
 
@@ -84,7 +85,7 @@ def _next():
     if not user:
         return Response(status=403)
 
-    if not len(user.articles) >= 5:
+    if not len(user.likes) >= 5:
         # IF USER LIKED ARTICLES ARE NOT MORE THAN 5
         # RETURN RANDOM
         article = user.random_article(nsfw=nsfw)
