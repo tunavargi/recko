@@ -18,8 +18,8 @@ class ArticleLike(BaseModel):
                                 {"$set": self.serialize()})
             return self._id
         else:
-            inserted_id = db.article_likes.insert(self.serialize())
-            return inserted_id
+            self._id = db.article_likes.insert(self.serialize())
+        return self._id
 
     def serialize(self):
         return {'article': self.article,
@@ -40,12 +40,12 @@ class ArticleVisit(BaseModel):
 
     def save(self):
         if self._id:
-            db.article_visits.update({"_id": self.id},
+            db.article_visits.update({"_id": self._id},
                                      {"$set": self.serialize()})
             return self._id
         else:
-            inserted_id = db.article_visits.insert(self.serialize())
-            return inserted_id
+            self._id = db.article_visits.insert(self.serialize())
+        return self._id
 
     def serialize(self):
         return {'article': self.article,
@@ -69,12 +69,12 @@ class Article(BaseModel):
 
     def save(self):
         if self.id:
-            db.articles.update({"_id": self.id},
+            db.articles.update({"_id": self._id},
                                 {"$set": self.serialize()})
             return self._id
         else:
-            inserted_id = db.articles.insert(self.serialize())
-            return inserted_id
+            self._id = db.articles.insert(self.serialize())
+        return self._id
 
     def serialize(self):
         return {"id": self._id,
@@ -96,14 +96,15 @@ class ArticleMatch(BaseModel):
         super(ArticleMatch, self).__init__(*args, **kwargs)
 
     def serialize(self):
-        return {"id": self.id,
+        return {"id": self._id,
                 "match1": self.match1,
                 "match2": self.match2,
                 "dst": self.dst}
 
     def save(self):
         if self.id:
-            db.article_matches.update({"_id": self.id},
+            db.article_matches.update({"_id": self._id},
                                       {"$set": self.serialize()})
         else:
-            db.article_matches.insert(self.serialize())
+            self._id = db.article_matches.insert(self.serialize())
+        return self._id

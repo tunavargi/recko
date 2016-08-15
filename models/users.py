@@ -19,19 +19,25 @@ class User(BaseModel):
         self.token = None
         super(User, self).__init__(*args, **kwargs)
 
-    def set_password(self, password):
-        hash = bcrypt.hashpw(password, CRYPTING_PASSWORD)
-        db.users.update({"_id": self.id},
-                        {"$set": {"password": hash}})
-
 
     def set_email(self, email):
-        db.users.update({"_id": self.id},
+        db.users.update({"_id": self._id},
                         {"$set": {"email": email}})
 
     def set_token(self, token):
-        db.users.update({"_id": self.id},
+        db.users.update({"_id": self._id},
                         {"$set": {"token": token}})
+
+    def set_password(self, password):
+        password = password.encode("utf-8")
+        hash = bcrypt.hashpw(b"%s" % password, CRYPTING_PASSWORD)
+        db.users.update({"_id": self._id},
+                         {"$set": {"password": hash}})
+
+    def check_password(self, password):
+        password = password.encode("utf-8")
+        hash = bcrypt.hashpw(b'%s' % password, CRYPTING_PASSWORD)
+        return hash == self.password
 
     def serialize(self):
         return {'id': self.id,
@@ -65,30 +71,32 @@ class User(BaseModel):
         return list(articles)
 
     def save(self):
-        if self.id:
-            db.users.update({"_id": self.id},
+        if self._id:
+            db.users.update({"_id": self._id},
                             {"$set": self.serialize()})
         else:
-            db.users.insert(self.serialize())
+            self._id = db.users.insert(self.serialize())
+        return self._id
+
 
     def like(self, article):
         # LIKE THE ARTICLE
         if article not in self.likes:
             article_like = ArticleLike(**{"create_date": datetime.utcnow(),
                                           "url": article.url,
-                                          "user": self.id,
+                                          "user": self._id,
                                           "nsfw": article.nsfw,
                                           "article": article.id})
             article_like.save()
 
     @property
     def likes(self):
-        articles = ArticleLike.q.filter({"user": self.id}).all()
+        articles = ArticleLike.q.filter({"user": self._id}).all()
         return list(articles)
 
     @property
     def visits(self):
-        articles = ArticleVisit.q.filter({"user": self.id}).all()
+        articles = ArticleVisit.q.filter({"user": self._id}).all()
         return list(articles)
 
 
@@ -97,7 +105,7 @@ class User(BaseModel):
         if article not in self.visits:
             article_visit = ArticleVisit(**{"create_date": datetime.utcnow(),
                                             "url": article.url,
-                                            "user": self.id,
+                                            "user": self._id,
                                             "nsfw": article.nsfw,
                                             "article": article.id})
             article_visit.save()

@@ -29,11 +29,49 @@ def go_embedly(url):
 
 @application.route("/authenticate", methods=["POST"])
 def authenticate():
-    token = "tok-%s" % uuid.uuid4().hex
-    db.users.insert_one({"articles": [],
-                         "visited": [],
-                         "token": token})
+    from models.users import User
+    email = request.json.get("email")
+    password = request.json.get("password")
+    if not (email and password):
+        token = "tok-%s" % uuid.uuid4().hex
+        user = User(**{})
+        user.save()
+        user.set_token(token)
+    else:
+        user = User.q.filter_by(email=email).first()
+        if not user:
+            return Response(status=403)
+        check = user.check_password(password)
+        if not check:
+            return Response(status=403)
+        token = user.token
     return Response(token)
+
+
+@application.route("/signup", methods=["POST"])
+def signup():
+    from models.users import User
+    email = request.json.get("email")
+    password = request.json.get("password")
+    token = request.args.get("token")
+
+    if not (email and password):
+        return Response(status=400)
+
+    # check if same email is not used
+    email_exists= User.q.filter_by(email=email).first()
+    if email_exists:
+        return Response(status=400)
+
+    # set username and password
+    user = User.q.filter_by(token=token).first()
+    if not user:
+        return Response(status=403)
+
+    user.set_email(email)
+    user.set_password(password)
+    return Response(status=201)
+
 
 @application.route("/likes", methods=["GET"])
 def likes():
