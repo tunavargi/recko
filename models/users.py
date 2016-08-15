@@ -15,15 +15,23 @@ class User(BaseModel):
         self.visited = []
         self.articles = []
         self.email = None
+        self.token = None
+        self.password = None
         super(User, self).__init__(*args, **kwargs)
 
     def set_password(self, password):
-        hash = bcrypt.hashpw(password, CRYPTING_PASSWORD)
-        self.password = hash
-        self.save()
+        password = password.encode("utf-8")
+        hash = bcrypt.hashpw(b"%s" % password, CRYPTING_PASSWORD)
+        db.photos.update({"_id": self.id}, {"$set": {"password": hash}})
+
+    def check_password(self, password):
+        password = password.encode("utf-8")
+        hash = bcrypt.hashpw(b'%s' % password, CRYPTING_PASSWORD)
+        return hash == self.password
 
     def set_email(self, email):
-        self.email = self.save()
+        self.email = email
+        self.save()
 
     def serialize(self):
         return {'id': self.id,
