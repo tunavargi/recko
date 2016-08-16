@@ -1,6 +1,19 @@
 from app import db
 from models.base import BaseModel
 
+
+class ArticleIndexed(BaseModel):
+    __collection_name__ = "article_indexed"
+
+    def __init__(self, *args, **kwargs):
+        self.url = None
+        super(ArticleIndexed, self).__init__(*args, **kwargs)
+
+    def save(self):
+        self._id = db.article_indexed.insert({"url": self.url})
+        return self._id
+
+
 class ArticleLike(BaseModel):
     __collection_name__ = 'article_likes'
 

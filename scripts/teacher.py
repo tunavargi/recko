@@ -7,11 +7,12 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 
 from config import EMBEDLY_API_KEY, REDIS_HOST
-from models.articles import Article
+from models.articles import Article, ArticleIndexed
 
 print REDIS_HOST
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 
+dont_index_kws = ["https://twitter.com"]
 reddit_nsfw = [
     "https://www.reddit.com/r/WatchItForThePlot/.json",
     "https://www.reddit.com/r/datgap/.json",
@@ -85,9 +86,13 @@ def teach(url,
           hardcoded_keywords=None,
           nsfw=False):
 
-    if not Article.q.filter({"url": url}).first():
+    if bool([i for i in dont_index_kws if i in url]):
+        return
+
+    if not ArticleIndexed.q.filter({"url": url}).first():
+        article_indexed = ArticleIndexed(**{"url": url})
+        article_indexed.save()
         keywords, content, title = go_embedly(url)
-        print title
         if content:
             item = Article(**{"url": url,
                               "create_date": datetime.now(),
@@ -98,6 +103,8 @@ def teach(url,
             item_id = item.save()
             redisconn.rpush("queue", str(item_id))
             print item_id
+
+
 
 def teach_reddit():
     for feed in reddit_feeds:

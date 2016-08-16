@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% block navigation %}
+{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container likes">
         <div class="link" id="title">Likes</div>
         </br>
         <div class="row">
@@ -28,12 +30,13 @@
     $.get("/likes?token=" + token, function(response){
         response = JSON.parse(response);
         response.articles.forEach(function(item){
-            item_info = item.title ? item.title : item.url
-            $(".row").append('<div class="link-small" id="title">' +
-                                '<a href=' + item.url + '>'+ item_info +'</a>' +
-                             '</div>')
+            item_info = item.title ? item.title : item.url;
+            var like = ('<div class="link-small" id="title">' +
+                                '<a target="_blank" href="' + item.url + '">'+ item_info +'</a>' +
+                             '</div>');
+            console.log(like)
+            $(".row").append(like);
         })
-        console.log(response)
     });
 </script>
 {% endblock %}
