@@ -30,6 +30,7 @@ reddit_feeds = [
     "http://www.reddit.com/r/database/.json",
     "http://www.reddit.com/r/devops/.json",
     "http://www.reddit.com/r/programming/.json",
+    "http://www.reddit.com/r/golang/.json",
     "http://www.reddit.com/r/ruby/.json",
     "http://www.reddit.com/r/history/.json",
     "http://www.reddit.com/r/science/.json",
