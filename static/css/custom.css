@@ -11,7 +11,7 @@ body {
     line-height: 25px;;
     text-transform: uppercase;
     text-align: center;
-    margin-top:60px;
+    margin-top:90px;
 }
 .logo a {
     text-decoration: none;
@@ -19,23 +19,21 @@ body {
 }
 .navigation {
     text-align:center;
-    padding-bottom:10px;
+    padding-bottom:40px;
     padding-top:40px;
 }
-button:hover {
-    background-color:transparent;
-}
-button:focus {
-    background-color:transparent;
-    outline: none !important;
+.btn-default:hover {
+    border-color: black;
+    background-color: transparent;
 }
 .btn-default.focus, .btn-default:focus {
     background-color:transparent;
+    border-color:black;
 }
 .navigation button{
     background-color:transparent;
     display:inline-block;
-    border:1px solid #5a5a5a;
+    border:1px solid black;
     padding:10px 15px;
     color:black;
     font-weight:200;
@@ -63,9 +61,8 @@ button:focus {
 }
 .link {
     text-align:center;
-    text-decoration: underline;
-    font-weight:bold;
-    font-size:20px;
+    font-weight:400;
+    font-size:30px;
     color:black;
 }
 
