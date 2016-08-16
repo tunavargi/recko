@@ -120,6 +120,9 @@ and (max-device-width : 480px) {
         margin-top:120px;
         margin-bottom:80px;
     }
+    .container {
+        width:810px;
+    }
 
     .navigation button {
         font-size:50px;
@@ -144,8 +147,8 @@ and (max-device-width : 480px) {
     }
 
     #embed, .about-text, .about-text h2 {
-        font-size:50px;
-        line-height: 70px;
+        font-size:40px;
+        line-height: 60px;
         padding-bottom:40px;
     }
 
