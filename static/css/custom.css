@@ -13,23 +13,25 @@ body {
     text-align: center;
     margin-top:60px;
 }
+.logo a {
+    text-decoration: none;
+    color:black;
+}
 .navigation {
     text-align:center;
     padding-bottom:10px;
     padding-top:40px;
 }
-
-
-
 button:hover {
     background-color:transparent;
 }
-
 button:focus {
     background-color:transparent;
     outline: none !important;
 }
-
+.btn-default.focus, .btn-default:focus {
+    background-color:transparent;
+}
 .navigation button{
     background-color:transparent;
     display:inline-block;
@@ -42,7 +44,6 @@ button:focus {
 .navigation button:focus{
     text-decoration: none;
 }
-
 #url {
     padding:10px;
     text-align: center;
@@ -53,6 +54,9 @@ button:focus {
 }
 #url a {
     color:#E74C3C;
+}
+#url a {
+    text-decoration: none;
 }
 #url:hover {
     opacity:1;
