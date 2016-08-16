@@ -6,6 +6,7 @@ class ArticleLike(BaseModel):
 
     def __init__(self, *args, **kwargs):
         self.article = None
+        self.title = None
         self.user = None
         self.create_date = None
         self.url = None
@@ -25,6 +26,7 @@ class ArticleLike(BaseModel):
         return {'article': self.article,
                 "create_date": self.create_date,
                 "user": self.user,
+                "title": self.title,
                 "url": self.url}
 
 

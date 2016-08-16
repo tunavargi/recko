@@ -86,6 +86,7 @@ class User(BaseModel):
                                           "url": article.url,
                                           "user": self._id,
                                           "nsfw": article.nsfw,
+                                          "title": article.title,
                                           "article": article.id})
             article_like.save()
 

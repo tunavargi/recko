@@ -17,11 +17,21 @@
 {% endblock %}
 {% block extrascript %}
 <script>
+    var shortUrl = function(u) {
+       uend = u.slice(u.length - 15);
+       ustart = u.replace('http://', '').replace('https://', '').substr(0, 42);
+       var shorter = ustart + '...' + uend;
+       return shorter;
+     }
+
     var token = $.cookie("token");
     $.get("/likes?token=" + token, function(response){
         response = JSON.parse(response);
         response.articles.forEach(function(item){
-            $(".row").append('<div class="link-small" id="title"><a href=' + item + '>'+ item +'</a></div>')
+            item_info = item.title ? item.title : item.url
+            $(".row").append('<div class="link-small" id="title">' +
+                                '<a href=' + item.url + '>'+ item_info +'</a>' +
+                             '</div>')
         })
         console.log(response)
     });

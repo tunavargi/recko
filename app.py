@@ -93,7 +93,7 @@ def likes():
     article_likes = ArticleLike.q.filter({"user": user.id}).\
         sort([("_id", -1)]).skip(offset).all()
 
-    bundle = [i.url for i in article_likes]
+    bundle = [{"url": i.url, "title": i.title} for i in article_likes]
     return Response(json_encode({"articles": bundle}))
 
 
