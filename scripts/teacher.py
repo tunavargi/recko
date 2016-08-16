@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
 from config import EMBEDLY_API_KEY, REDIS_HOST
 from models.articles import Article
 
-
+print REDIS_HOST
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 
 reddit_nsfw = [

@@ -2,13 +2,13 @@ body {
     /*font-family: 'Courier';*/
     font-weight:300;
     font-size:18px;
-    line-height:25px;
     text-align: justify;
     margin-bottom:40px;
 }
 .logo {
     font-family: 'Londrina Outline', cursive;
     font-size:80px;
+    line-height: 25px;;
     text-transform: uppercase;
     text-align: center;
     margin-top:60px;

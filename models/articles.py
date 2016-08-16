@@ -72,7 +72,6 @@ class Article(BaseModel):
         if self.id:
             db.articles.update({"_id": self._id},
                                 {"$set": self.serialize()})
-            return self._id
         else:
             self._id = db.articles.insert(self.serialize())
         return self._id
