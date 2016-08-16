@@ -38,6 +38,13 @@
     else{
         getter()
     }
+    var shortUrl = function(u) {
+       uend = u.slice(u.length - 15);
+       ustart = u.replace('http://', '').replace('https://', '').substr(0, 32);
+       var shorter = ustart + '...' + uend;
+       return shorter;
+     }
+
     function getter() {
         $.get("next", {
             token: token,
@@ -52,7 +59,7 @@
                 $("#embed").html(response.article.content);
                 $("#title").html(response.article.title);
             }
-            $("#url").html('<a href="' + response.article.url + '">' + response.article.url + '</a>')
+            $("#url").html('<a href="' + response.article.url + '">' + shortUrl(response.article.url)+ '</a>')
         }).fail(function (response) {
             if (response.status == 403){
             $.removeCookie("token")
