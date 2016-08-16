@@ -1,0 +1,28 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <title>Reko</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Londrina+Outline' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+
+<body>
+    <div class="logo"><a href="/">Reko.</a></div>
+    <div class="navigation">
+        <button class="btn btn-default next"><i class="fa fa-chevron-right" aria-hidden="true"></i> Next</button>
+        <button class="btn btn-default like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</button>
+{#        <button onclick="location.href='/login'"class="btn btn-default login"><i class="fa fa-user" aria-hidden="true"></i> SignUp/In </button>#}
+        <button onclick="location.href='/mylikes'" class="btn btn-default likes"><i class="fa fa-thumbs-up" aria-hidden="true"></i> Likes</button>
+    </div>
+{% block content %}
+
+{% endblock %}
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+{% block extrascript %}
+{% endblock %}
+</body>
+</html>

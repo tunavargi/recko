@@ -15,9 +15,12 @@ body {
 }
 .navigation {
     text-align:center;
-    padding-bottom:20px;
+    padding-bottom:10px;
     padding-top:40px;
 }
+
+
+
 button:hover {
     background-color:transparent;
 }
@@ -59,6 +62,16 @@ button:focus {
     text-decoration: underline;
     font-weight:bold;
     font-size:20px;
+    color:black;
+}
+
+.link-small {
+    text-align:center;
+    font-size:14px;
+    color:black;
+}
+.form-info {
+    font-size:14px;
     color:black;
 }
 #embed img {

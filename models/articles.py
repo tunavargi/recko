@@ -65,6 +65,7 @@ class Article(BaseModel):
         self.keywords = []
         self.nsfw = False
         self.content = None
+        self.title = None
         super(Article, self).__init__(*args, **kwargs)
 
     def save(self):
@@ -82,6 +83,7 @@ class Article(BaseModel):
                 "nsfw": self.nsfw,
                 "create_date": self.create_date,
                 "keywords": self.keywords,
+                "title": self.title,
                 "content": self.content}
 
 

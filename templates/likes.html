@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="link" id="title">Likes</div>
+        </br>
+        <div class="row">
+        </div>
+        <hr>
+        <footer>
+            <div class="footer">
+                <a href="https://github.com/vargi/reko" title="reko"><i class="fa fa-github" aria-hidden="true"></i>&nbsp <span>https://github.com/vargi/reko</span></a>
+                </br>
+                <a href='/about' class=" about">what is reko?</a>
+
+            </div>
+        </footer>
+    </div>
+{% endblock %}
+{% block extrascript %}
+<script>
+    var token = $.cookie("token");
+    $.get("/likes?token=" + token, function(response){
+        response = JSON.parse(response);
+        response.articles.forEach(function(item){
+            $(".row").append('<div class="link-small" id="title"><a href=' + item + '>'+ item +'</a></div>')
+
+
+
+        })
+        console.log(response)
+    });
+</script>
+{% endblock %}

@@ -30,8 +30,11 @@ def go_embedly(url):
 @application.route("/authenticate", methods=["POST"])
 def authenticate():
     from models.users import User
-    email = request.json.get("email")
-    password = request.json.get("password")
+    email = None
+    password = None
+    if request.json:
+        email = request.json.get("email")
+        password = request.json.get("password")
     if not (email and password):
         token = "tok-%s" % uuid.uuid4().hex
         user = User(**{})
@@ -45,7 +48,8 @@ def authenticate():
         if not check:
             return Response(status=403)
         token = user.token
-    return Response(token)
+    return Response(json_encode({"token": token,
+                                 "email": email}))
 
 
 @application.route("/signup", methods=["POST"])
@@ -85,10 +89,11 @@ def likes():
     if not user:
         return Response(status=403)
 
-    from models.articles import Article
-    user_likes = user.articles[::-1]
-    articles = Article.q.filter({"_id": {"$in": user_likes}}).skip(offset).all()
-    bundle = [i.serialize() for i in articles]
+    from models.articles import ArticleLike
+    article_likes = ArticleLike.q.filter({"user": user.id}).\
+        sort([("_id", -1)]).skip(offset).all()
+
+    bundle = [i.url for i in article_likes]
     return Response(json_encode({"articles": bundle}))
 
 
@@ -156,6 +161,18 @@ def index():
 @application.route('/about')
 def about():
     return render_template('about.html')
+
+@application.route('/mylikes')
+def likes_template():
+    return render_template('likes.html')
+
+@application.route('/login')
+def login_template():
+    return render_template('login.html')
+
+@application.route('/register')
+def register_template():
+    return render_template('register.html')
 
 @application.route('/nsfw')
 def nsfw():

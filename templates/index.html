@@ -1,25 +1,11 @@
-<html xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="utf-8">
-    <title>Reko</title>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
-    <link href='https://fonts.googleapis.com/css?family=Londrina+Outline' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="/static/css/custom.css">
-</head>
-
-<body>
-    <div class="logo">Reko.</div>
-    <div class="navigation">
-        <button class="btn btn-default next"><i class="fa fa-chevron-right" aria-hidden="true"></i> Next</button>
-        <button class="btn btn-default like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</button>
-        <button onclick="location.href = '/about'" class="btn btn-default about"><i class="fa fa-info" aria-hidden="true"></i> About</button>
-    </div>
+{% extends "base.html" %}
+{% block content %}
     <div class="container">
         <div class="row">
             <div class="link" id="title"></div>
             <div class="col-md-8 col-md-offset-2" id="url"></div>
         </div>
+
         <div class="row">
             <div class="col-md-8 col-md-offset-2" id="embed"></div>
         </div>
@@ -27,19 +13,24 @@
         <footer>
             <div class="footer">
                 <a href="https://github.com/vargi/reko" title="reko"><i class="fa fa-github" aria-hidden="true"></i>&nbsp <span>https://github.com/vargi/reko</span></a>
+                </br>
+                <a href='/about' class=" about">what is reko?</a>
+
             </div>
         </footer>
     </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-<script>
+{% endblock %}
+{% block extrascript %}
+    <script>
     var token = $.cookie("token");
     var nsfw = false;
     var _id;
+    var signedUp = false;
     if (!token) {
         $.post("/authenticate", {}).done(function(response) {
-            token = response;
+            response = JSON.parse(response)
+            token = response.token;
+            signedUp = Boolean(response.email);
             $.cookie("token", token);
             getter()
         })
@@ -96,5 +87,4 @@
         }})
 
 </script>
-</body>
-</html>
+{% endblock %}

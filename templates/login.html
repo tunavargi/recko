@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2" id="url">
+                <p class="form-info">Email: <input id="email"></input></p>
+                <p class="form-info">Password: <input id="password"></input></p>
+                <button class="btn btn-default submit">Login</button>
+                <button class="btn btn-default signup">Signup</button>
+            </div>
+        </div>
+        <hr>
+        <footer>
+            <div class="footer">
+                <a href="https://github.com/vargi/reko" title="reko"><i class="fa fa-github" aria-hidden="true"></i>&nbsp <span>https://github.com/vargi/reko</span></a>
+                </br>
+                <a href='/about' class=" about">what is reko?</a>
+
+            </div>
+        </footer>
+    </div>
+{% endblock %}
+{% block extrascript %}
+    <script>
+    </script>
+{% endblock %}

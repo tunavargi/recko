@@ -32,17 +32,18 @@ def calculater():
             article = Article.q.fetch_by_id(id[1])
             words = [i['name'] for i in article.keywords if i.get("score", 0) > 45]
             matching_urls = Article.q.filter({"keywords.name": {"$in": words},
-                                            "_id": {"$ne": ObjectId(id[1])}}).all()
+                                              "_id": {"$ne": ObjectId(id[1])}}).all()
             for i in matching_urls:
                 dst = calculate_euclidaen_distance(article, i)
                 article1 = ArticleMatch(**{"match1": article.id,
-                              "match2": i.id,
-                              "dst":dst})
+                                           "match2": i.id,
+                                           "dst":dst})
                 article2 = ArticleMatch(**{"match2": article.id,
-                              "match1": i.id,
-                              "dst":dst})
+                                           "match1": i.id,
+                                           "dst":dst})
                 article1.save()
                 article2.save()
+                print article.id
 
         except Exception as e:
             print(e)
