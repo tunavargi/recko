@@ -120,10 +120,10 @@ and (max-device-width : 480px) {
         margin-top:120px;
         margin-bottom:80px;
     }
+
     .container {
         width:810px;
     }
-
     .navigation button {
         font-size:50px;
         font-weight:200;
