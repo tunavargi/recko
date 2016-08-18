@@ -44,7 +44,7 @@ def calculate_article(article):
 
 
 def calculate_all():
-    articles = Article.q.all()
+    articles = Article.q.chunked_all()
     for article in articles:
         if not article.keywords:
             continue
@@ -63,4 +63,4 @@ def calculater():
 
 
 if __name__ == "__main__":
-    calculate_all()
+    calculater()

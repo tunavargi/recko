@@ -13,6 +13,11 @@ print REDIS_HOST
 redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 
 dont_index_kws = ["https://twitter.com"]
+
+arstechnica = [
+    "http://feeds.arstechnica.com/arstechnica/index"
+]
+
 reddit_nsfw = [
     "https://www.reddit.com/r/WatchItForThePlot/.json",
     "https://www.reddit.com/r/datgap/.json",
@@ -34,19 +39,19 @@ reddit_feeds = [
     "http://www.reddit.com/r/ruby/.json",
     "http://www.reddit.com/r/history/.json",
     "http://www.reddit.com/r/science/.json",
+    "http://www.reddit.com/r/biology/.json",
+    "http://www.reddit.com/r/lifehacks/.json",
+    "http://www.reddit.com/r/Futurology/.json",
     "http://www.reddit.com/r/InternetIsBeautiful/.json",
     "http://www.reddit.com/r/nutrition/.json",
     "http://www.reddit.com/r/philosophy/.json",
+    "http://www.reddit.com/r/psychology/.json",
+    "http://www.reddit.com/r/history/.json",
+    "http://www.reddit.com/r/todayilearned/.json",
     "http://www.reddit.com/r/politics/.json",
     "http://www.reddit.com/r/worldnews/.json",
     "http://www.reddit.com/r/news/.json",
     "http://www.reddit.com/r/technology/.json",
-    "http://www.reddit.com/r/nba/.json",
-    "http://www.reddit.com/r/soccer/.json",
-    "http://www.reddit.com/r/baseball/.json",
-    "http://www.reddit.com/r/formula1/.json",
-    "http://www.reddit.com/r/nfl/.json",
-    "http://www.reddit.com/r/lgbt/.json",
 ]
 
 wired_feeds = [
@@ -134,18 +139,17 @@ def teach_wired():
         for child in d["entries"]:
             teach(child["links"][0]["href"])
 
-def wired():
-    teach_wired()
+def teach_arstechnica():
+    for feed in arstechnica:
+        d = feedparser.parse(r'%s' % feed)
+        for child in d["entries"]:
+            teach(child["link"])
 
-def reddit():
-    teach_reddit()
-
-def nsfw():
-    teach_nsfw()
 
 def teacher():
-    reddit()
-    wired()
-    nsfw()
+    teach_arstechnica()
+    teach_wired()
+    teach_reddit()
+    teach_nsfw()
 
 teacher()
