@@ -1,10 +1,10 @@
-# Reko
+# Recko
 
-[**reko.vargi.net**](http://reko.vargi.net)
+[**recko.me**](http://recko.me)
 
 Calculates distance between articles and recommend new articles to read
 
-- Teach some article url's to reko
+- Teach some article url's to recko
 - Calculates the distance between teached articles according to keywords extracted
 - Then get closest neighbors of given articles
 - brings recommendations according to user's liked articles
