@@ -5,6 +5,9 @@ body {
     text-align: justify;
     margin-bottom:40px;
 }
+
+button:focus {outline:0;}
+
 .logo {
     font-family: 'Londrina Outline', cursive;
     font-size:80px;
