@@ -6,8 +6,6 @@ body {
     margin-bottom:40px;
 }
 
-button:focus {outline:0;}
-
 .logo {
     font-family: 'Londrina Outline', cursive;
     font-size:80px;
@@ -32,6 +30,7 @@ button:focus {outline:0;}
 .btn-default.focus, .btn-default:focus {
     background-color:transparent;
     border-color:black;
+    outline:0 !important;
 }
 .navigation button{
     background-color:transparent;
