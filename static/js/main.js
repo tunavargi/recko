@@ -1,4 +1,4 @@
-var token = Cookies.get("token")
+var token = Cookies.get("token");
 var nsfw = false;
 var _id;
 var signedUp = false;
@@ -37,9 +37,12 @@ function getter() {
         }
         $("#url").html('<a href="' + response.article.url + '">' + shortUrl(response.article.url)+ '</a>')
     }).fail(function (response) {
-        if (response.status == 403){
-        $.removeCookie("token")
-    }})
+        if (response.status == 403)
+        {
+            Cookies.remove("token");
+            window.location.reload()
+        }
+    })
 }
 
 var like = function(){
@@ -50,6 +53,13 @@ var like = function(){
          data: data,
          contentType: "application/json",
          dataType: "application/json",
+         error: function(response){
+             if (response.status == 403){
+                 Cookies.remove("token");
+                 window.location.reload()
+             }
+
+         },
          complete: function (response) {
             getter()
         }

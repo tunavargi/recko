@@ -18,7 +18,8 @@ class ArticleLike(BaseModel):
     __collection_name__ = 'article_likes'
 
     def __init__(self, *args, **kwargs):
-        self.article = None
+        self.article = {}
+        self.article_id = None
         self.title = None
         self.user = None
         self.create_date = None
@@ -29,7 +30,7 @@ class ArticleLike(BaseModel):
     def save(self):
         if self.id:
             db.article_likes.update({"_id": self.id},
-                                {"$set": self.serialize()})
+                                    {"$set": self.serialize()})
             return self._id
         else:
             self._id = db.article_likes.insert(self.serialize())
@@ -47,7 +48,8 @@ class ArticleVisit(BaseModel):
     __collection_name__ = 'article_visits'
 
     def __init__(self, *args, **kwargs):
-        self.article = None
+        self.article = {}
+        self.article_id = None
         self.user = None
         self.nsfw = False
         self.create_date = None
@@ -64,6 +66,7 @@ class ArticleVisit(BaseModel):
 
     def serialize(self):
         return {'article': self.article,
+                'article_id': self.article_id,
                 "nsfw": self.nsfw,
                 "user": self.user,
                 "create_date": self.create_date,
@@ -99,28 +102,3 @@ class Article(BaseModel):
                 "keywords": self.keywords,
                 "title": self.title,
                 "content": self.content}
-
-
-class ArticleMatch(BaseModel):
-
-    __collection_name__ = 'article_matches'
-
-    def __init__(self, *args, **kwargs):
-        self.match1 = None
-        self.match2 = None
-        self.dst = 0
-        super(ArticleMatch, self).__init__(*args, **kwargs)
-
-    def serialize(self):
-        return {"id": self._id,
-                "match1": self.match1,
-                "match2": self.match2,
-                "dst": self.dst}
-
-    def save(self):
-        if self.id:
-            db.article_matches.update({"_id": self._id},
-                                      {"$set": self.serialize()})
-        else:
-            self._id = db.article_matches.insert(self.serialize())
-        return self._id

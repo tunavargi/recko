@@ -128,7 +128,7 @@ def _next():
     if not user:
         return Response(status=403)
 
-    if not len(user.likes) >= 5:
+    if not len(user.likes) >= 3:
         # IF USER LIKED ARTICLES ARE NOT MORE THAN 5
         # RETURN RANDOM
         article = user.random_article(nsfw=nsfw)
@@ -139,8 +139,8 @@ def _next():
         return Response(json_encode({'article': article.serialize()}),
                         mimetype="application/json")
 
-    suggested_articles = user.suggested_articles(nsfw=nsfw)
-    if not suggested_articles:
+    suggested_article = user.suggested_articles(nsfw=nsfw)
+    if not suggested_article:
         article = user.random_article(nsfw=nsfw)
         if not article:
             return Response(status=404)
@@ -148,9 +148,7 @@ def _next():
         return Response(json_encode({'article': article.serialize()}),
                         mimetype="application/json")
 
-    random = randint(0, len(suggested_articles)-1)
-    random_suggested = suggested_articles[random]
-    visited_article = user.visit(random_suggested)
+    visited_article = user.visit(suggested_article)
     return Response(json_encode({"article": visited_article.serialize()}),
                     mimetype="application/json")
 

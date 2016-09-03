@@ -1,3 +1,4 @@
+from collections import defaultdict
 from random import randint
 
 from datetime import datetime
@@ -5,8 +6,9 @@ from datetime import datetime
 import bcrypt
 from app import db
 from config import CRYPTING_PASSWORD
-from models.articles import Article, ArticleMatch, ArticleLike, ArticleVisit
+from models.articles import Article, ArticleLike, ArticleVisit
 from models.base import BaseModel
+from scipy.spatial import distance
 
 
 class User(BaseModel):
@@ -56,19 +58,52 @@ class User(BaseModel):
             return article
         return None
 
+    def calculate_euclidaen_distance(self, user_keywords, matched_article):
+        "Calculate the euclidaen distance between matched url and recored url"
+        new_article_kws = {i['name']: i['score'] for i in user_keywords if i['score'] >= 25}
+        matched_article_kws = {i['name']: i['score'] for i in matched_article.keywords if i['score'] >= 25}
+        all_keywords = [i for i in [i["name"] for i in user_keywords if i["score"] >= 25]] + \
+                       [i for i in [i["name"] for i in matched_article.keywords if i["score"] >= 25]]
+
+        a = tuple([new_article_kws.get(i, 0) for i in all_keywords])
+        b = tuple([matched_article_kws.get(i, 0) for i in all_keywords])
+        try:
+            dst = distance.euclidean(a,b)
+            return dst
+        except:
+            return 0
+
     def suggested_articles(self, nsfw=False):
-        visited_ids = [i.article for i in self.visits]
-        like_ids = [i.article for i in self.likes]
+        visited_ids = [i.article_id for i in self.visits]
+        likes = self.likes
+        liked_kws = [i.article.get("keywords") for i in likes]
+        user_keywords = defaultdict(int)
+        counts = defaultdict(int)
+        for keywords in liked_kws:
+            for keyword in keywords:
+                user_keywords[keyword["name"]] += keyword["score"]
+                counts[keyword["name"]] += 1
 
-        query = {"match1":{"$in": like_ids},
-                 "match2": {"$nin": visited_ids}}
+        mean_keywords = [{"name": i, "score": v/counts[i]}
+                         for i, v in user_keywords.items()
+                         if v/counts[i] > 25]
 
-        similar = ArticleMatch.q.filter(query).sort([("dst", 1)]).all()
-        similar = list(similar)
-        match_ids = [i.match2 for i in similar if i.match2]
-        articles = Article.q.filter({"_id": {"$in": match_ids},
-                                     "nsfw": nsfw}).all()
-        return list(articles)
+
+        mean_keys = [i["name"] for i in mean_keywords]
+        filters = {"_id": {"$nin": visited_ids},
+                   "keywords.name": {"$in": mean_keys}}
+        not_visited_closest_articles = Article.q.filter(filters).sort([("_id", -1)]).limit(10).all()
+        smallest_distance = 1000
+        closest = None
+        for not_visited_article in not_visited_closest_articles:
+            distance = self.calculate_euclidaen_distance(mean_keywords, not_visited_article)
+
+            if distance:
+                if distance < smallest_distance:
+                    smallest_distance = distance
+                    closest = not_visited_article
+        return closest
+
 
     def save(self):
         if self._id:
@@ -87,12 +122,14 @@ class User(BaseModel):
                                           "user": self._id,
                                           "nsfw": article.nsfw,
                                           "title": article.title,
-                                          "article": article.id})
+                                          "article": article.serialize(),
+                                          "article_id": article._id})
             article_like.save()
+
 
     @property
     def likes(self):
-        articles = ArticleLike.q.filter({"user": self._id}).all()
+        articles = ArticleLike.q.filter({"user": self._id}).sort([("_id", -1)]).limit(10).all()
         return list(articles)
 
     @property
@@ -108,6 +145,7 @@ class User(BaseModel):
                                             "url": article.url,
                                             "user": self._id,
                                             "nsfw": article.nsfw,
-                                            "article": article.id})
+                                            "article": article.serialize(),
+                                            "article_id": article.id})
             article_visit.save()
         return article
