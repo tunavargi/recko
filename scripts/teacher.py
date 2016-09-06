@@ -14,6 +14,14 @@ redisconn = redis.StrictRedis(host=REDIS_HOST, port=6379, db=0)
 
 dont_index_kws = ["https://twitter.com"]
 
+economist = ["http://www.economist.com/sections/business-finance/rss.xml",
+             "http://www.economist.com/sections/economics/rss.xml",
+             "http://www.economist.com/sections/science-technology/rss.xml",
+             "http://www.economist.com/sections/culture/rss.xml"
+             ]
+
+
+
 arstechnica = [
     "http://feeds.arstechnica.com/arstechnica/index"
 ]
@@ -145,11 +153,18 @@ def teach_arstechnica():
         for child in d["entries"]:
             teach(child["link"])
 
+def teach_economist():
+    for feed in economist:
+        d = feedparser.parse(r'%s' % feed)
+        for child in d["entries"]:
+            teach(child["link"])
+
 
 def teacher():
+    teach_economist()
     teach_arstechnica()
     teach_wired()
     teach_reddit()
-    teach_nsfw()
+    # teach_nsfw()
 
 teacher()
