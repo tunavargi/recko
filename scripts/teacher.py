@@ -47,6 +47,8 @@ reddit_feeds = [
     "http://www.reddit.com/r/ruby/.json",
     "http://www.reddit.com/r/history/.json",
     "http://www.reddit.com/r/science/.json",
+    "http://www.reddit.com/r/business/.json",
+    "http://www.reddit.com/r/economics/.json",
     "http://www.reddit.com/r/biology/.json",
     "http://www.reddit.com/r/lifehacks/.json",
     "http://www.reddit.com/r/Futurology/.json",
